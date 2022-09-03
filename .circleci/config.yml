@@ -13,26 +13,29 @@ commands:
           command: |
             aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.workflowID>>
             aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.workflowID>>
+      - run:
+          name: delete s3 data
+          command: aws s3 rm s3://udapeople-<<parameters.workflowID>> --recursive
+          when: on_fail
 
-#   revert-migrations:
-#     description: Revert the last migration if successfully run in the current workflow.
-#     parameters:
-#       # Add parameter here     
-#     steps:
-#       - run:
-#           name: Revert migrations
-#           # Add when this will run
-#           command: |
-#             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-#             SUCCESS = 1
-#             if(( $SUCCESS==1 )); 
-#             then
-#             #  cd ~/project/backend
-#             #  npm install
-#             #  Add revert code here. You can find this in the Getting Started section.
-#               exit 1
-#             fi
-            
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflowID:
+        type: string
+    steps:
+      - run:
+          name: Revert migrations
+          command: |
+            SUCCESS=$(curl --insecure  https://kvdb.io/U47wwkbA3YasoS7oUdfScz/migration_<<parameters.workflowID>>)
+            if(( $SUCCESS==1 )); 
+            then
+             cd ~/project/backend
+             npm install
+             npm run migration:revert
+            fi
+          when: on_fail
+
 jobs:
   build-frontend:
     docker:
@@ -225,8 +228,10 @@ jobs:
             then
                 curl --insecure https://kvdb.io/A7KDpjaEvbSffVWY3hLeSS/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
+      - revert-migrations:
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment:
-          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}       
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}    
 
   deploy-frontend:
     docker:
@@ -279,8 +284,10 @@ jobs:
           command: |
             cd frontend
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - revert-migrations:
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment:
-          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}     
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}  
                     
   deploy-backend:
     docker:
@@ -330,6 +337,8 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
+      - revert-migrations:
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -368,6 +377,8 @@ jobs:
               else
                 exit 1
               fi
+      - revert-migrations:
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
 
