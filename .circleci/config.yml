@@ -317,7 +317,7 @@ jobs:
       - destroy-environment:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
 
-smoke-test:
+  smoke-test:
     docker:
       - image: alpine:3.15
     steps:
