@@ -28,3 +28,9 @@
       pm2 stop default
       pm2 start npm -- start
     register: pm2_output
+  - name: output pm2 data to console
+    debug:
+      msg: "{{ pm2_output.stdout_lines }}"
+  - name: output npm data to console
+    debug:
+      msg: "{{ npm_output.stdout_lines }}"
