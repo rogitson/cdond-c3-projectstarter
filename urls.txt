@@ -1,5 +1,5 @@
 URL1 https://github.com/rogitson/cdond-c3-projectstarter
-URL2 http://udapeople-abc9ed4.s3-website-us-east-1.amazonaws.com/
-URL3 https://d2dsp7yitp7bm2.cloudfront.net/
-URL4 http://ec2-44-201-203-184.compute-1.amazonaws.com:3030/api/status
+URL2 http://udapeople-ed4e469.s3-website-us-east-1.amazonaws.com
+URL3 http://d2dsp7yitp7bm2.cloudfront.net/
+URL4 http://ec2-52-91-95-73.compute-1.amazonaws.com:3030/api/status
 URL5 http://ec2-52-90-112-210.compute-1.amazonaws.com:9090/graph
